@@ -5,6 +5,7 @@ import java.time.Duration;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
@@ -32,13 +33,23 @@ public class BaseTest {
         int timeout = Integer.parseInt(ConfigReader.get("timeout"));
 
         if (browser.equalsIgnoreCase("chrome")) {
+
             WebDriverManager.chromedriver().setup();
-            driver = new ChromeDriver();
+
+            ChromeOptions options = new ChromeOptions();
+
+            // 🔹 Mandatory for CI (GitHub Actions / Linux)
+            options.addArguments("--headless=new");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+            options.addArguments("--window-size=1920,1080");
+
+            driver = new ChromeDriver(options);
+
         } else {
             throw new RuntimeException("Browser not supported: " + browser);
         }
 
-        driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(timeout));
         driver.get(baseUrl);
     }
